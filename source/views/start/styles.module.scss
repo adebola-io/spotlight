@@ -1,17 +1,17 @@
 $column-counts: (
-  6: (
+  5: (
     0px,
     512px,
   ),
-  10: (
+  8: (
     513px,
     768px,
   ),
-  12: (
+  10: (
     769px,
     1024px,
   ),
-  15: (
+  16: (
     1025px,
     9999px,
   ),
@@ -22,6 +22,17 @@ $second-ring: 0.35;
 $--disperse: -14px;
 $disperse: calc($--disperse * -1);
 
+/**
+ * Generates a complex CSS selector for grid item positioning based on the provided parameters.
+ *
+ * @param {Number} $c - Number of columns in the grid.
+ * @param {String} $y - Vertical direction ('inline', 'up', 'down').
+ * @param {String} $x - Horizontal direction ('block', 'left', 'right').
+ * @param {Number} $col-multiplier - Multiplier for column displacement.
+ * @param {Number} $shift - Shift value for adjusting the selector.
+ * 
+ * @return {String} - The generated CSS selector for positioning grid items.
+ */
 @function select($c, $y: inline, $x: block, $col-multiplier: 1, $shift: 0) {
   $y-displacement: calc($c * $col-multiplier);
   $is-first-col: ':nth-child(' + $c + 'n + 1)';
@@ -83,11 +94,19 @@ $disperse: calc($--disperse * -1);
 }
 
 .gridContainer {
+  position: fixed;
+  top: 0;
   display: grid;
   width: 100dvw;
   height: 100dvh;
-  background-color: black;
+
   place-content: center;
+
+  body:has(&) {
+    overflow: hidden;
+    background-color: black;
+    overscroll-behavior: none;
+  }
 }
 
 @each $c, $width in $column-counts {
