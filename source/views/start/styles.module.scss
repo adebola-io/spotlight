@@ -1,0 +1,292 @@
+$column-counts: (15);
+$gap: 7px;
+$first-ring: 0.5;
+$second-ring: 0.35;
+$--disperse: -14px;
+$disperse: calc($--disperse * -1);
+
+@function select($c, $y: inline, $x: block, $col-multiplier: 1, $shift: 0) {
+  $y-displacement: calc($c * $col-multiplier);
+  $is-first-col: ':nth-child(' + $c + 'n + 1)';
+  $is-second-col: ':nth-child(' + $c + 'n + 2)';
+  $is-last-col: ':nth-child(' + $c + 'n)';
+  $is-penultimate-col: ':nth-child(' + $c + 'n - 1)';
+  $after-hover: '&:not(:has(~ :hover))';
+  $before-hover: '&:has(~ :hover)';
+  $search-selector: '*';
+  $prefix: ':nth-child(';
+  $offset: 0;
+  $suffix: '';
+
+  @if $x == left {
+    $suffix: ':not(' + $is-last-col + ')';
+  } @else if $x == right {
+    $suffix: ':not(' + $is-first-col + ')';
+  }
+
+  @if $shift != 0 {
+    @if $x == left {
+      $suffix: $suffix + ':not(' + $is-penultimate-col + ')';
+    } @else if $x == right {
+      $suffix: $suffix + ':not(' + $is-second-col + ')';
+    }
+  }
+
+  @if $y == down {
+    $search-selector: $after-hover;
+    @if $x == left {
+      $offset: -1;
+    } @else if $x == right {
+      $offset: 1;
+    }
+  } @else if $y == up {
+    $search-selector: $before-hover;
+    $prefix: ':nth-last-child(';
+    @if $x == left {
+      $offset: 1;
+    } @else if $x == right {
+      $offset: -1;
+    }
+  } @else if $y == inline {
+    $y-displacement: 0;
+    $offset: 1;
+    @if $x == left {
+      $prefix: ':nth-last-child(';
+      $search-selector: $before-hover;
+    } @else if $x == right {
+      $prefix: ':nth-child(';
+      $search-selector: $after-hover;
+    }
+  }
+
+  $df: calc($offset + $shift);
+  $center: calc($y-displacement + $df) + ' of ' + $search-selector + ')';
+  $final: $prefix + $center + $suffix;
+  @return $final;
+}
+
+.gridContainer {
+  display: grid;
+  width: 100dvw;
+  height: 100dvh;
+  background-color: black;
+  place-content: center;
+}
+
+@each $c in $column-counts {
+  $first-col: ':nth-child(' + $c + 'n + 1)';
+  $second-col: ':nth-child(' + $c + 'n + 2)';
+  $penultimate-col: ':nth-child(' + $c + 'n - 1)';
+
+  $last-col: ':nth-child(' + $c + 'n)';
+  $before-hover: '&:has(~ :hover)';
+  $after-hover: '&:not(:has(~ :hover))';
+
+  .grid {
+    display: grid;
+    transition: transform 300ms;
+    grid-template-columns: repeat($c, auto);
+    place-items: center;
+    place-content: center;
+  }
+
+  .item {
+    display: grid;
+    padding: $gap;
+    transition-duration: 250ms;
+    transition-property: opacity, translate, scale;
+    place-content: center;
+    place-items: center;
+
+    &:hover {
+      opacity: 1;
+      scale: 1.2;
+
+      &::before {
+        border: 2px solid;
+        outline: 2px solid #2f93ff;
+      }
+    }
+
+    &:active {
+      scale: 0.9;
+      &::before {
+        background-color: #2fffa8;
+      }
+    }
+
+    &::before {
+      display: block;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background-color: #2f93ff;
+      content: '';
+      transition-duration: 300ms;
+      transition-property: translate, scale;
+      translate: var(--translate);
+
+      @media (max-width: 1280px) {
+        width: 45px;
+        height: 45px;
+      }
+
+      @media (max-width: 1024px) {
+        width: 35px;
+        height: 35px;
+      }
+
+      @media (max-width: 768px) {
+        width: 25px;
+        height: 25px;
+      }
+      @media (max-width: 480px) {
+        width: 15px;
+        height: 15px;
+      }
+    }
+  }
+
+  /* FIRST RING AROUND HOVER */
+  .grid:has(.item:hover) > :not(.item:hover) {
+    opacity: 0.25;
+
+    :is(#{select($c, inline, left)}) {
+      --translate: #{$disperse};
+      /* One step left */
+      opacity: $first-ring;
+    }
+    :is(#{select($c, inline, right)}) {
+      --translate: #{$--disperse};
+      /* One step right */
+      opacity: $first-ring;
+    }
+    :is(#{select($c, down, right)}) {
+      --translate: #{$--disperse $--disperse};
+      /* One step down, one step right */
+      opacity: $first-ring;
+    }
+    :is(#{select($c, down)}) {
+      --translate: #{0 $--disperse};
+      /* One step down */
+      opacity: $first-ring;
+    }
+    :is(#{select($c, down, left)}) {
+      --translate: #{$disperse $--disperse};
+      /* One step down, one step left */
+      opacity: $first-ring;
+    }
+    :is(#{select($c, up, right)}) {
+      --translate: #{$--disperse $disperse};
+      /* One step up, one step right */
+      opacity: $first-ring;
+    }
+    :is(#{select($c, up)}) {
+      --translate: #{0 $disperse};
+      /* One step up */
+      opacity: $first-ring;
+    }
+    :is(#{select($c, up, left)}) {
+      --translate: #{$disperse $disperse};
+      /* One step up, one step left */
+      opacity: $first-ring;
+    }
+  }
+
+  /* SECOND RING AROUND HOVER */
+  .grid:has(.item:hover) > :not(.item:hover) {
+    :is(#{select($c, inline, left, 1, 1)}) {
+      --translate: #{$disperse};
+      /* Two steps left */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, inline, right, 1, 1)}) {
+      --translate: #{$--disperse};
+      /* Two steps right */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, up, right, 2)}) {
+      --translate: #{$--disperse $disperse};
+      /* Two steps up, one right */
+      opacity: $second-ring;
+    }
+    :is(#{select($c, up, block, 2)}) {
+      --translate: #{0 $disperse};
+      /* Two steps up */
+      opacity: $second-ring;
+    }
+    :is(#{select($c, up, left, 2)}) {
+      --translate: #{$disperse $disperse};
+      /* Top steps up, one left */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, down, left, 2)}) {
+      --translate: #{$disperse $--disperse};
+      /* Top steps down, one left */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, down, block, 2)}) {
+      --translate: #{0 $--disperse};
+      /* Two steps down */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, down, right, 2)}) {
+      --translate: #{$--disperse $--disperse};
+      /* Top steps down, one right */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, down, right, 1, 1)}) {
+      --translate: #{$--disperse $--disperse};
+      /* Two steps right, one down */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, down, left, 1, -1)}) {
+      --translate: #{$disperse $--disperse};
+      /* Two steps left, one down */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, up, left, 1, 1)}) {
+      --translate: #{$disperse $disperse};
+      /* Two steps left, one up */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, up, right, 1, -1)}) {
+      --translate: #{$--disperse $disperse};
+      /* Two steps right, one up */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, up, left, 2, 1)}) {
+      --translate: #{$disperse $disperse};
+      /* Two steps left, two up */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, up, right, 2, -1)}) {
+      --translate: #{$--disperse $disperse};
+      /* Two steps right, two up */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, down, left, 2, -1)}) {
+      --translate: #{$disperse $--disperse};
+      /* Two steps left, two down */
+      opacity: $second-ring;
+    }
+
+    :is(#{select($c, down, right, 2, 1)}) {
+      --translate: #{$--disperse $--disperse};
+      /* Two steps right, two down */
+      opacity: $second-ring;
+    }
+  }
+}

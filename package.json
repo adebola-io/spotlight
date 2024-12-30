@@ -1,0 +1,20 @@
+{
+  "name": "spotlight",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5229",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@adbl/unfinished": "https://pkg.pr.new/adebola-io/unfinished/@adbl/unfinished@52fefd4",
+    "@adbl/cells": "latest"
+  },
+  "devDependencies": {
+    "sass-embedded": "^1.83.0",
+    "typescript": "^5.5.2",
+    "vite": "^5.4.8"
+  }
+}
