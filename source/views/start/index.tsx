@@ -7,7 +7,7 @@ export default function Start() {
     <div class={classes.gridContainer}>
       <div class={classes.grid}>
         {For(count, () => (
-          <div class={classes.item}></div>
+          <div class={classes.item} />
         ))}
       </div>
     </div>
